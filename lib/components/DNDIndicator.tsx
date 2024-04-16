@@ -83,3 +83,5 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
       )
   }
 }
+
+DNDIndicator.componentName = 'DNDIndicator'

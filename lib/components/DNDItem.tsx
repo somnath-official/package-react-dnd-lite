@@ -1,4 +1,4 @@
-import { Children, createElement, useContext, useEffect, useRef, useState } from "react"
+import { createElement, useContext, useEffect, useRef, useState } from "react"
 import { DNDContainerContext, ElementDropInterface } from "./DNDContainer"
 
 interface DNDItemInterface {
@@ -8,6 +8,7 @@ interface DNDItemInterface {
 }
 
 const DNDHandler = 'DNDHandler'
+const DNDIndicator = 'DNDIndicator'
 
 export const DNDItem = ({
   children,
@@ -15,7 +16,7 @@ export const DNDItem = ({
   isDraggable = true,
 }: DNDItemInterface) => {
   let tempChildren = children
-  const [itemDraggable, setItemDraggable] = useState(false)
+  const [itemDraggable, setItemDraggable] = useState(isDraggable)
   const [hasDragHandler, setHasDragHandler] = useState(false)
   const elementRef = useRef<HTMLElement | null>(null)
   const dndContext = useContext(DNDContainerContext)
@@ -108,33 +109,35 @@ export const DNDItem = ({
   getCorrectNode(children)
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const checkHandlerExists = (children: any, componentName: string): React.ReactElement | null => {
-      if (typeof children === 'string') return null
-  
-      const childrenType = typeof children.type
-      
-      if (childrenType === 'function') {
-        const funcDef: string = children.type.toString()
-        if (funcDef.includes(componentName)) {
-          setItemDraggable(false)
-          setHasDragHandler(true)
-          return children
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const nodeItem: any = children.type
-          checkHandlerExists(nodeItem(children.props), componentName)
+    const getChildComponentByName = (children: React.ReactElement, componentName: string): React.ReactElement | undefined => {
+      const nodes = Array.isArray(children) ? children : [children];
+      return nodes.reduce((modalContent, node) => {
+        if (modalContent) return modalContent;
+        if (node) {
+          if (node.type && node.type.componentName === componentName) return node;
+          if (typeof node.type === 'function') {
+            if (node.type.componentName && node.type.componentName === componentName) return node;
+            else if (node.type.componentName && node.type.componentName === DNDIndicator) return null;
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const nodeItem: any = node.type
+            const newNode: React.ReactElement = nodeItem(node.props)
+            return getChildComponentByName(newNode, componentName)
+          }
+          if (node.props && node.props.children) return getChildComponentByName(node.props.children, componentName);
         }
-      }
-      else if (childrenType === 'symbol' && children.props.children) checkHandlerExists(children.props.children, componentName)
-      else if (Array.isArray(children)) Children.map(children, (child) => checkHandlerExists(child, componentName))
-      
-      return null
+      }, null);
     }
   
     if (isDraggable) {
-      setItemDraggable(true)
-      checkHandlerExists(children, DNDHandler)
+      const h = getChildComponentByName(children, DNDHandler)
+      if(h) {
+        setItemDraggable(false)
+        setHasDragHandler(true)
+      } else {
+        setItemDraggable(true)
+        setHasDragHandler(false)
+      }
     }
   }, [children, isDraggable])
 
