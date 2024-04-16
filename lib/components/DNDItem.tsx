@@ -14,6 +14,7 @@ export const DNDItem = ({
   id,
   isDraggable = true,
 }: DNDItemInterface) => {
+  let tempChildren = children
   const [itemDraggable, setItemDraggable] = useState(false)
   const [hasDragHandler, setHasDragHandler] = useState(false)
   const elementRef = useRef<HTMLElement | null>(null)
@@ -37,6 +38,7 @@ export const DNDItem = ({
           if (modalContent) return modalContent;
           if (node) {
             if (node.type && node.type.name === componentName) return node;
+            if (typeof node.type === 'function') return getChildComponentByName(node.type(node.props), componentName);
             if (node.props) return getChildComponentByName(node.props.children, componentName);
           }
         }, null);
@@ -100,7 +102,7 @@ export const DNDItem = ({
   }
 
   const getClassName = () => {
-    let className = children.props.className
+    let className = tempChildren.props.className ?? ''
     const dragOverElement = dndContext?.getDragOverElementData()
 
     if (dragOverElement?.id === id) className += ' dragging-over'
@@ -109,13 +111,42 @@ export const DNDItem = ({
   }
 
   const getStyles = () => {
-    return {...children.props.style, position: 'relative'}
+    return {...tempChildren.props.style, position: 'relative'}
   }
 
+  const getCorrectNode = (children: React.ReactElement | string) => {
+    if (typeof children === 'string') {
+      tempChildren = createElement('div', {}, children)
+      return
+    }
+
+    const childrenType = typeof children.type
+    
+    if (childrenType === 'function') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nodeItem: any = children.type
+      getCorrectNode(nodeItem(children.props))
+    }
+    else if (childrenType === 'symbol') getCorrectNode(children.props.children)
+    else if (childrenType === 'string') {
+      tempChildren = children
+      return
+    } else if (Array.isArray(children)) {
+      throw new Error(`
+        Using a React Fragment (<>...</>) directly as a wrapper for multiple children within a 
+        DNDItem component may not be supported in certain contexts. Instead, you should wrap the 
+        children with a regular HTML element such as div, span, or p.
+      `)
+    }
+    return
+  }
+  
+  getCorrectNode(children)
+
   const newEle = createElement(
-    children.type,
+    tempChildren.type,
     {
-      ...children.props,
+      ...tempChildren.props,
       ref: elementRef,
       className: getClassName(),
       style: getStyles(),
