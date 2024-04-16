@@ -37,8 +37,8 @@ export const DNDItem = ({
         return nodes.reduce((modalContent, node) => {
           if (modalContent) return modalContent;
           if (node) {
-            if (node.type && node.type.name === componentName) return node;
-            if (typeof node.type === 'function') return getChildComponentByName(node.type(node.props), componentName);
+            if (node.type && node.type.name && node.type.name === componentName) return node;
+            if (node.type instanceof Function) return getChildComponentByName(node.type(node.props), componentName);
             if (node.props) return getChildComponentByName(node.props.children, componentName);
           }
         }, null);
