@@ -1,4 +1,4 @@
-import { CSSProperties, useContext, useEffect, useState } from "react"
+import { CSSProperties, useContext, useState } from "react"
 import { DNDContainerContext, DropPositionType, ElementDropInterface } from "./DNDContainer"
 import './styles.css'
 
@@ -15,12 +15,6 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
   const dragOverElement = dndContext?.getDragOverElementData()
   const draggingElement = dndContext?.getDraggingElementData()
   const [hovered, setHovered] = useState(false)
-  const [newStyle, setNewStyle] = useState(style)
-
-  useEffect(() => {
-    if (hovered) setNewStyle({...style, ...hoveredStyle})
-    else setNewStyle(style)
-  }, [hovered, hoveredStyle, style])
 
   const onDrop = (e: React.DragEvent, position: DropPositionType) => {
     e.stopPropagation()
@@ -39,7 +33,7 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
       return (
         <div
           className={`${className} dnd-indicator ${dragOverElement?.id === id ? 'dnd-left-indicator' : ''} ${hovered ? 'hovered' : ''}`}
-          style={newStyle}
+          style={hovered ? {...style, ...hoveredStyle} : style}
           onDrop={(e: React.DragEvent) => {
             onDrop(e, position)
             setHovered(false)
@@ -52,7 +46,7 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
       return (
         <div
           className={`${className} dnd-indicator ${dragOverElement?.id === id ? 'dnd-right-indicator' : ''} ${hovered ? 'hovered' : ''}`}
-          style={newStyle}
+          style={hovered ? {...style, ...hoveredStyle} : style}
           onDrop={(e: React.DragEvent) => {
             onDrop(e, position)
             setHovered(false)
@@ -65,7 +59,7 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
       return (
         <div
           className={`${className} dnd-indicator ${dragOverElement?.id === id ? 'dnd-top-indicator' : ''} ${hovered ? 'hovered' : ''}`}
-          style={newStyle}
+          style={hovered ? {...style, ...hoveredStyle} : style}
           onDrop={(e: React.DragEvent) => {
             onDrop(e, position)
             setHovered(false)
@@ -78,7 +72,7 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
       return (
         <div
           className={`${className} dnd-indicator ${dragOverElement?.id === id ? 'dnd-bottom-indicator' : ''} ${hovered ? 'hovered' : ''}`}
-          style={newStyle}
+          style={hovered ? {...style, ...hoveredStyle} : style}
           onDrop={(e: React.DragEvent) => {
             onDrop(e, position)
             setHovered(false)
