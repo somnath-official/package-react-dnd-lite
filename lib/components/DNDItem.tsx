@@ -1,4 +1,4 @@
-import { createElement, useContext, useEffect, useRef, useState } from "react"
+import { Children, createElement, useContext, useEffect, useRef, useState } from "react"
 import { DNDContainerContext, ElementDropInterface } from "./DNDContainer"
 
 interface DNDItemInterface {
@@ -19,42 +19,6 @@ export const DNDItem = ({
   const [hasDragHandler, setHasDragHandler] = useState(false)
   const elementRef = useRef<HTMLElement | null>(null)
   const dndContext = useContext(DNDContainerContext)
-
-  useEffect(() => {
-    if (!isDraggable) {
-      setHasDragHandler(false)
-      setItemDraggable(false)
-    }
-    else {
-      /**
-       * Checking if children contains DNDHandler component or not.
-       * 
-       * If children contains DNDHandler component then apply setItemDraggable(false)
-       * as user will only be able to drag element by handler.
-       */
-      const getChildComponentByName = (children: React.ReactElement, componentName: string): React.ReactElement | undefined => {
-        const nodes = Array.isArray(children) ? children : [children];
-        return nodes.reduce((modalContent, node) => {
-          if (modalContent) return modalContent;
-          if (node) {
-            if (node.type && node.type.name && node.type.name === componentName) return node;
-            if (node.type instanceof Function) return getChildComponentByName(node.type(node.props), componentName);
-            if (node.props) return getChildComponentByName(node.props.children, componentName);
-          }
-        }, null);
-      }
-      
-      const h = getChildComponentByName(children, DNDHandler)
-      
-      if(h) {
-        setItemDraggable(false)
-        setHasDragHandler(true)
-      } else {
-        setItemDraggable(true)
-        setHasDragHandler(false)
-      }
-    }
-  }, [children, id, isDraggable])
 
   const onDragStart = (e: React.DragEvent) => {
     dndContext?.updateDraggingStatus(true)
@@ -140,8 +104,39 @@ export const DNDItem = ({
     }
     return
   }
-  
+
   getCorrectNode(children)
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const checkHandlerExists = (children: any, componentName: string): React.ReactElement | null => {
+      if (typeof children === 'string') return null
+  
+      const childrenType = typeof children.type
+      
+      if (childrenType === 'function') {
+        const funcDef: string = children.type.toString()
+        if (funcDef.includes(componentName)) {
+          setItemDraggable(false)
+          setHasDragHandler(true)
+          return children
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const nodeItem: any = children.type
+          checkHandlerExists(nodeItem(children.props), componentName)
+        }
+      }
+      else if (childrenType === 'symbol' && children.props.children) checkHandlerExists(children.props.children, componentName)
+      else if (Array.isArray(children)) Children.map(children, (child) => checkHandlerExists(child, componentName))
+      
+      return null
+    }
+  
+    if (isDraggable) {
+      setItemDraggable(true)
+      checkHandlerExists(children, DNDHandler)
+    }
+  }, [children, isDraggable])
 
   const newEle = createElement(
     tempChildren.type,
