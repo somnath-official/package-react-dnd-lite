@@ -7,5 +7,5 @@ export {
     DNDIndicator,
     DNDItem,
     DNDHandler,
-    DNDContainer,    
+    DNDContainer,
 }

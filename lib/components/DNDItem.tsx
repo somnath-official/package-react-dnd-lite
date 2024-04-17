@@ -110,6 +110,7 @@ export const DNDItem = ({
 
   useEffect(() => {
     const getChildComponentByName = (children: React.ReactElement, componentName: string): React.ReactElement | undefined => {
+      // TODO - Need to define type of nodes
       const nodes = Array.isArray(children) ? children : [children];
       return nodes.reduce((modalContent, node) => {
         if (modalContent) return modalContent;
