@@ -19,6 +19,7 @@ export const DNDItem = ({
   const dndContext = useContext(DNDContainerContext)
 
   const onDragStart = (e: React.DragEvent) => {
+    e.currentTarget.classList.add('dragging')
     const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     if (dndId) {
       dndContext?.updateDraggingStatus(true)
@@ -53,7 +54,8 @@ export const DNDItem = ({
     }
   }
 
-  const onDragEnd = () => {
+  const onDragEnd = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove('dragging')
     dndContext?.updateDraggingStatus(false)
     if (hasDragHandler && elementRef.current) {
       setItemDraggable(false)
