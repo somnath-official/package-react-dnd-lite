@@ -1,5 +1,6 @@
-import { createElement, useContext, useEffect, useRef, useState } from "react"
+import { cloneElement, useContext, useEffect, useRef, useState } from "react"
 import { DNDContainerContext, ElementDropInterface } from "./DNDContainer"
+import { DND_HANDLER_ID, DND_ITEM_ID } from "../constants"
 
 interface DNDItemInterface {
   children: React.ReactElement
@@ -7,33 +8,30 @@ interface DNDItemInterface {
   isDraggable?: boolean
 }
 
-const DNDHandler = 'DNDHandler'
-const DNDIndicator = 'DNDIndicator'
-
 export const DNDItem = ({
   children,
   id,
   isDraggable = true,
 }: DNDItemInterface) => {
-  let tempChildren = children
   const [itemDraggable, setItemDraggable] = useState(isDraggable)
   const [hasDragHandler, setHasDragHandler] = useState(false)
   const elementRef = useRef<HTMLElement | null>(null)
   const dndContext = useContext(DNDContainerContext)
 
   const onDragStart = (e: React.DragEvent) => {
-    dndContext?.updateDraggingStatus(true)
-
-    const dndId = e.currentTarget.getAttribute('data-dnd-id')
-    if (dndId) dndContext?.updateDraggingElement({id: dndId, element: e.currentTarget})
-}
+    const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
+    if (dndId) {
+      dndContext?.updateDraggingStatus(true)
+      dndContext?.updateDraggingElement({id: dndId, element: e.currentTarget})
+    }
+  }
 
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault()
   }
 
   const onDragEnter = (e: React.DragEvent) => {
-    const dndId = e.currentTarget.getAttribute('data-dnd-id')
+    const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     const draggingElement = dndContext?.getDraggingElementData()
     if (dndId && draggingElement?.id !== dndId)
       dndContext?.updateDragOverElement({id: dndId, element: e.currentTarget})
@@ -41,7 +39,7 @@ export const DNDItem = ({
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    const dndId = e.currentTarget.getAttribute('data-dnd-id')
+    const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     const draggingElement = dndContext?.getDraggingElementData()
 
     if (dndId && draggingElement?.id !== dndId) {
@@ -56,6 +54,7 @@ export const DNDItem = ({
   }
 
   const onDragEnd = () => {
+    dndContext?.updateDraggingStatus(false)
     if (hasDragHandler && elementRef.current) {
       setItemDraggable(false)
       elementRef.current.setAttribute("draggable", "false")
@@ -67,7 +66,7 @@ export const DNDItem = ({
   }
 
   const getClassName = () => {
-    let className = tempChildren.props.className ?? ''
+    let className = children.props.className ?? ''
     const dragOverElement = dndContext?.getDragOverElementData()
 
     if (dragOverElement?.id === id) className += ' dragging-over'
@@ -76,63 +75,38 @@ export const DNDItem = ({
   }
 
   const getStyles = () => {
-    return {...tempChildren.props.style, position: 'relative'}
+    return children.props.style ? {...children.props.style, position: 'relative'} : { position: 'relative' }
   }
 
-  const getCorrectNode = (children: React.ReactElement | string) => {
+  const checkChildren = () => {
     if (typeof children === 'string') {
-      tempChildren = createElement('div', {}, children)
-      return
+      throw new Error('String is provided as childern to DNDItem. Please provide a valid React.ReactElement.')
     }
 
-    const childrenType = typeof children.type
-    
-    if (childrenType === 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const nodeItem: any = children.type
-      getCorrectNode(nodeItem(children.props))
-    }
-    else if (childrenType === 'symbol') getCorrectNode(children.props.children)
-    else if (childrenType === 'string') {
-      tempChildren = children
-      return
-    } else if (Array.isArray(children)) {
+    if (Array.isArray(children)) {
       throw new Error(`
         Using a React Fragment (<>...</>) directly as a wrapper for multiple children within a 
         DNDItem component may not be supported in certain contexts. Instead, you should wrap the 
         children with a regular HTML element such as div, span, or p.
       `)
     }
+
+    switch(typeof children.type) {
+      case 'function':
+        throw new Error('You are providing React.Component as children to DNDItem. Please use a regular HTML element such as div, span, or p as children')
+      case 'symbol':
+        throw new Error('You are providing React.Fragment as children to DNDItem. Please use a regular HTML element such as div, span, or p as children')
+    }
     return
   }
 
-  getCorrectNode(children)
+  checkChildren()
 
   useEffect(() => {
-    const getChildComponentByName = (children: React.ReactElement, componentName: string): React.ReactElement | undefined => {
-      // TODO - Need to define type of nodes
-      const nodes = Array.isArray(children) ? children : [children];
-      return nodes.reduce((modalContent, node) => {
-        if (modalContent) return modalContent;
-        if (node) {
-          if (node.type && node.type.componentName === componentName) return node;
-          if (typeof node.type === 'function') {
-            if (node.type.componentName && node.type.componentName === componentName) return node;
-            else if (node.type.componentName && node.type.componentName === DNDIndicator) return null;
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const nodeItem: any = node.type
-            const newNode: React.ReactElement = nodeItem(node.props)
-            return getChildComponentByName(newNode, componentName)
-          }
-          if (node.props && node.props.children) return getChildComponentByName(node.props.children, componentName);
-        }
-      }, null);
-    }
-  
     if (isDraggable) {
-      const h = getChildComponentByName(children, DNDHandler)
-      if(h) {
+      const handler = document.querySelector(`[${DND_HANDLER_ID}="${id}"]`)
+
+      if(handler) {
         setItemDraggable(false)
         setHasDragHandler(true)
       } else {
@@ -140,17 +114,17 @@ export const DNDItem = ({
         setHasDragHandler(false)
       }
     }
-  }, [children, isDraggable])
+  }, [children, id, isDraggable])
 
-  const newEle = createElement(
-    tempChildren.type,
+  const newEle = cloneElement(
+    children,
     {
-      ...tempChildren.props,
+      ...children.props,
       ref: elementRef,
       className: getClassName(),
       style: getStyles(),
       draggable: itemDraggable,
-      'data-dnd-id': id,
+      [DND_ITEM_ID]: id,
       onDragStart,
       onDragOver,
       onDragEnter,
