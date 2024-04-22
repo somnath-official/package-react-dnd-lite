@@ -15,11 +15,23 @@ export const DNDItem = ({
 }: DNDItemInterface) => {
   const [itemDraggable, setItemDraggable] = useState(isDraggable)
   const [hasDragHandler, setHasDragHandler] = useState(false)
+  const [dragOverlayElement, setDragOverlayElement] = useState<null | HTMLElement>(null)
   const elementRef = useRef<HTMLElement | null>(null)
   const dndContext = useContext(DNDContainerContext)
 
   const onDragStart = (e: React.DragEvent) => {
+    const cloneElement = e.currentTarget.cloneNode(true) as HTMLElement
+    cloneElement.style.position = 'absolute';
+    cloneElement.style.left = '-100%';
+    cloneElement.style.zIndex = '-100';
+    cloneElement.style.width = '200px';
+
+    document.querySelector('body')?.appendChild(cloneElement)
+    setDragOverlayElement(cloneElement)
+    e.dataTransfer.setDragImage(cloneElement, 0, 0)
+
     e.currentTarget.classList.add('dragging')
+    
     const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     if (dndId) {
       dndContext?.updateDraggingStatus(true)
@@ -56,6 +68,10 @@ export const DNDItem = ({
 
   const onDragEnd = (e: React.DragEvent) => {
     e.currentTarget.classList.remove('dragging')
+    if (dragOverlayElement) {
+      document.querySelector('body')?.removeChild(dragOverlayElement)
+      setDragOverlayElement(null)
+    }
     dndContext?.updateDraggingStatus(false)
     if (hasDragHandler && elementRef.current) {
       setItemDraggable(false)
@@ -68,7 +84,7 @@ export const DNDItem = ({
   }
 
   const getClassName = () => {
-    let className = children.props.className ?? ''
+    let className = `${children.props.className ?? ''} dnd-item`
     const dragOverElement = dndContext?.getDragOverElementData()
 
     if (dragOverElement?.id === id) className += ' dragging-over'

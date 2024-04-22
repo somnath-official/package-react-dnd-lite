@@ -66,3 +66,7 @@
   height: 40px;
   opacity: 0.7;
 }
+
+.dnd-item.dragging {
+  opacity: 0.5;
+}
