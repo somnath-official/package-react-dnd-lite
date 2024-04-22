@@ -1,30 +1,55 @@
-# React + TypeScript + Vite
+# React DND Lite
+---
+Add drag and drop feature in your react app with minimal configuration with **react-dnd-lite**.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+## Installation
+```console
+$ npm install react-dnd-lite
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Basic concepts
+DNDContainer
+: It is a wrapping element that handles all the drag and drop state management and give access to `onDrop` event. It internally uses `createContext` api. Wrap your parent component inside the `DNDContainer` like so
+
+> App.tsx
+```js
+import { DNDContainer, IElementDrop } from 'react-dnd-lite'
+import { Test } from './components/Test'
+
+function App() {
+  const onDrop = (e: IElementDrop) => {
+    console.log(e)
+  }
+  
+  return (
+    <DNDContainer onDrop={onDrop}>
+      <Test />
+    </DNDContainer>
+  )
+}
+
+export default App
+
+```
+
+DNDItem
+: It handles all the magic. `DNDItem` converts the children to a draggable item.
+
+> Test.tsx
+```js
+import { DNDItem } from "react-dnd-lite"
+
+export const Test = () => {
+  return (
+    <div className="container">
+      <DNDItem id="1">
+        <div className="box box-1">Box 1</div>
+      </DNDItem>
+      <DNDItem id="2">
+        <div className="box box-2">Box 2</div>
+      </DNDItem>
+    </div>
+  )
+}
+```
+> `*`Note: `DNDItem` accepts only HTMLElement as direct children. It will not work for `React component` or `React Fragment` as direct children.

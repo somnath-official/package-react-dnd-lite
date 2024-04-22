@@ -1,1 +1,0 @@
-export type { ElementDropInterface } from './components/DNDContainer'

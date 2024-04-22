@@ -10,7 +10,7 @@ export interface DragOverElementInterface {
   element: Element | null
 }
 
-export interface ElementDropInterface {
+export interface IElementDrop {
   draggedElementId: string | number | null
   droppedElementId: string | number | null
   droppingPosition: DropPositionType
@@ -34,14 +34,14 @@ interface DNDContextInterface {
   clearDragOverElement: () => void
 
   // On Drop state
-  getOnDropInfo: () => ElementDropInterface | null
-  updateOnDropInfo: (data: ElementDropInterface) => void
+  getOnDropInfo: () => IElementDrop | null
+  updateOnDropInfo: (data: IElementDrop) => void
   clearOnDropInfo: () => void
 }
 
 interface DNDContainerInterface {
   children: React.ReactNode
-  onDrop?: (data: ElementDropInterface) => void
+  onDrop?: (data: IElementDrop) => void
   onDragStart?: (data: DraggingElementInterface) => void
   onDragOver?: (data: DragOverElementInterface) => void
 }
@@ -52,7 +52,7 @@ export const DNDContainer = ({children, onDrop, onDragStart, onDragOver}: DNDCon
   const [isDragging, setIsDragging] = useState(false)
   const [draggingElement, setDraggingElement] = useState<DraggingElementInterface>({id: null, element: null})
   const [dragOverElement, setDragOverElement] = useState<DragOverElementInterface>({id: null, element: null})
-  const [onDropInfo, setOnDropInfo] = useState<ElementDropInterface | null>(null)
+  const [onDropInfo, setOnDropInfo] = useState<IElementDrop | null>(null)
 
   // Dragging status
   const updateDraggingStatus = (status: boolean) => {
@@ -101,7 +101,7 @@ export const DNDContainer = ({children, onDrop, onDragStart, onDragOver}: DNDCon
     return onDropInfo
   }
 
-  const updateOnDropInfo = (data: ElementDropInterface) => {
+  const updateOnDropInfo = (data: IElementDrop) => {
     if (onDrop) onDrop(data)
     setOnDropInfo({...data})
     return

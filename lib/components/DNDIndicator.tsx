@@ -2,7 +2,7 @@ import { CSSProperties, useContext, useState } from "react"
 import {
   DNDContainerContext,
   DropPositionType,
-  ElementDropInterface
+  IElementDrop
 } from "./DNDContainer"
 import './styles.css'
 
@@ -23,7 +23,7 @@ export const DNDIndicator = ({position, style = {}, id, className = '', hoveredS
   const onDrop = (e: React.DragEvent, position: DropPositionType) => {
     e.stopPropagation()
     
-    const data: ElementDropInterface = {
+    const data: IElementDrop = {
       draggedElementId: draggingElement?.id as string,
       droppedElementId: dragOverElement?.id as string,
       droppingPosition: position

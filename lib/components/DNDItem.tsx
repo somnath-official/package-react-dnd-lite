@@ -1,5 +1,5 @@
 import { cloneElement, useContext, useEffect, useRef, useState } from "react"
-import { DNDContainerContext, ElementDropInterface } from "./DNDContainer"
+import { DNDContainerContext, IElementDrop } from "./DNDContainer"
 import { DND_HANDLER_ID, DND_ITEM_ID } from "../constants"
 
 interface DNDItemInterface {
@@ -24,7 +24,6 @@ export const DNDItem = ({
     cloneElement.style.position = 'absolute';
     cloneElement.style.left = '-100%';
     cloneElement.style.zIndex = '-100';
-    cloneElement.style.width = '200px';
 
     document.querySelector('body')?.appendChild(cloneElement)
     setDragOverlayElement(cloneElement)
@@ -56,7 +55,7 @@ export const DNDItem = ({
     const draggingElement = dndContext?.getDraggingElementData()
 
     if (dndId && draggingElement?.id !== dndId) {
-      const data: ElementDropInterface = {
+      const data: IElementDrop = {
         draggedElementId: draggingElement?.id as string,
         droppedElementId: dndId,
         droppingPosition: 'element'
