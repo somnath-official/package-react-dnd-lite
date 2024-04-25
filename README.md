@@ -1,15 +1,24 @@
 # React DND Lite
----
 Add drag and drop feature in your react app with minimal configuration with **react-dnd-lite**.
 
 ## Installation
+Using NPM
 ```console
 $ npm install react-dnd-lite
 ```
 
+Using YARN
+```console
+$ yarn add react-dnd-lite
+```
+
 ## Basic concepts
-DNDContainer
-: It is a wrapping element that handles all the drag and drop state management and give access to `onDrop` event. It internally uses `createContext` api. Wrap your parent component inside the `DNDContainer` like so
+  <dl>
+    <dt>DNDContainer -</dt>
+  </dl>
+  <dl>
+  It is a wrapping element that handles all the drag and drop state management and give access to <code>onDrop</code> event. It internally uses react <code>createContext</code> api. Wrap your parent component inside the <code>DNDContainer</code> like so
+  </dl>
 
 > App.tsx
 ```js
@@ -32,8 +41,12 @@ export default App
 
 ```
 
-DNDItem
-: It handles all the magic. `DNDItem` converts the children to a draggable item.
+<dl>
+  <dt>DNDItem - </dt>
+</dl>
+<dl>
+  It handles all the magic. <code>DNDItem</code> converts the children to a draggable item.
+</dl>
 
 > Test.tsx
 ```js
@@ -52,4 +65,6 @@ export const Test = () => {
   )
 }
 ```
-> `*`Note: `DNDItem` accepts only HTMLElement as direct children. It will not work for `React component` or `React Fragment` as direct children.
+
+> Note
+> `DNDItem` accepts only HTMLElement as direct children. It will not work for `React component` or `React Fragment` as direct children.

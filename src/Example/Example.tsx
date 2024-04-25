@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ElementDropInterface } from "../../lib/types"
+import { IElementDrop } from "../../lib/main"
 import { DNDContainer } from "../../lib/main"
 import { RenderLists } from "./components/RenderLists"
 
@@ -23,7 +23,7 @@ export const Example = () => {
         ])
     }, [])
 
-    const onDrop = (data: ElementDropInterface) => {
+    const onDrop = (data: IElementDrop) => {
         console.log(data)
     }
 
