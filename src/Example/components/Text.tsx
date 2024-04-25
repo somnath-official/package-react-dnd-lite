@@ -17,15 +17,15 @@ export const Text = ({item}: {item: ListInterface}) => {
         <DNDIndicator
           position='left'
           id={item.id.toString()}
-          style={{width: '100px', backgroundColor: 'green'}}
-          hoveredStyle={{width: '150px', backgroundColor: 'red'}}
+          style={{width: '100px'}}
+          hoveredStyle={{width: '150px'}}
         />
             
         <DNDIndicator
           position='right'
           id={item.id.toString()}
-          style={{width: '100px', backgroundColor: 'green'}}
-          hoveredStyle={{width: '150px', backgroundColor: 'red'}}
+          style={{width: '100px'}}
+          hoveredStyle={{width: '150px'}}
         />
       </div>
     </DNDItem>
