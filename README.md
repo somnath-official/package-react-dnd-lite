@@ -17,16 +17,16 @@ $ yarn add react-dnd-lite
 
 > App.tsx
 ```js
-import { DNDContainer, IElementDrop } from 'react-dnd-lite'
+import { DNDContainer, IElementDrop, IElementDragging, IElementDraggingOver } from 'react-dnd-lite'
 import { Test } from './components/Test'
 
 function App() {
-  const onDrop = (e: IElementDrop) => {
-    console.log(e)
-  }
+  const onDrop = (e: IElementDrop) => console.log(e)
+  const onDragStart = (e: IElementDragging) => console.log(e)
+  const onDragOver = (e: IElementDraggingOver) => console.log(e)
   
   return (
-    <DNDContainer onDrop={onDrop}>
+    <DNDContainer onDrop={onDrop} onDragStart={onDragStart} onDragOver={onDragOver}>
       <Test />
     </DNDContainer>
   )
@@ -35,6 +35,12 @@ function App() {
 export default App
 
 ```
+|API|Type|Required|Example|
+|---|----|--------|-------|
+|onDrop|function|`false`| (e: IElementDrop) => console.log(e) |
+|onDragStart|function|`false`| (e: IElementDragging) => console.log(e) |
+|onDragOver|function|`false`| (e: IElementDraggingOver) => console.log(e) |
+
 <br>
 
 **DNDItem** - It handles all the magic. <code>DNDItem</code> converts the children to a draggable item.
@@ -62,6 +68,14 @@ export const Test = () => {
 ```
 
 > <sup>*</sup>**Note:** DNDItem accepts only HTMLElement as direct children. It may not work properly for React component or React Fragment as direct children.
+
+<br>
+
+|API|Type|Required|Example|
+|---|----|--------|-------|
+|id|string|`true`| id="some-id-1"|
+|isDraggable|boolean|`false`|isDraggable={true}|
+
 
 ## Advance features
 
@@ -99,6 +113,12 @@ export const Test = () => {
 
 <br>
 
+|API|Type|Required|Example|Note|
+|---|----|--------|-------|----|
+|id|string|`true`| id="some-id-1"|Please note that id must be same with the DNDItem's id|
+
+<br>
+
 **DNDIndicator** - It allows user to add drop indicator to DNDItem. Place DNDIndicator component inside the DNDItem like so...
 ```js
 import { DNDHandler, DNDIndicator, DNDItem } from "react-dnd-lite"
@@ -129,3 +149,13 @@ export const Test = () => {
 }
 ```
 ![](/public/DNDIndicator.gif)
+
+<br>
+
+|API|Type|Required|Example|Note|
+|---|----|--------|-------|----|
+|id|string|`true`| id="some-id-1"|Please note that id must be same with the DNDItem's id|
+|position|string|`true`| position="left"|Available options are `left`, `right`, `bottom`, `top` and `element`, Default is `element`|
+|className|string|`false`| className="my-dnd-indicator"||
+|style|Object|`false`| style={{width: '20px', background: 'red'}}||
+|hoveredStyle|Object|`false`| style={{width: '30px', background: 'green'}}||
