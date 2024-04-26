@@ -1,7 +1,7 @@
 # React DND Lite
-Add drag and drop feature in your react app with minimal configuration with **react-dnd-lite**.
+Add drag and drop feature in your react app with minimal configuration using **react-dnd-lite**.
 
-### Installation
+## Installation
 Using NPM
 ```console
 $ npm install react-dnd-lite
@@ -12,13 +12,8 @@ Using YARN
 $ yarn add react-dnd-lite
 ```
 
-### Basic concepts
-  <dl>
-    <dt>DNDContainer -</dt>
-  </dl>
-  <dl>
-  It is a wrapping element that handles all the drag and drop state management and give access to <code>onDrop</code> event. It internally uses react <code>createContext</code> api. Wrap your parent component inside the <code>DNDContainer</code> like so
-  </dl>
+## Basic concepts
+  **DNDContainer** - It is a wrapping element that handles all the drag and drop state management and give access to <code>onDrop</code> event. It internally uses react <code>createContext</code> api. Wrap your parent component inside the <code>DNDContainer</code> like so
 
 > App.tsx
 ```js
@@ -40,13 +35,9 @@ function App() {
 export default App
 
 ```
+<br>
 
-<dl>
-  <dt>DNDItem - </dt>
-</dl>
-<dl>
-  It handles all the magic. <code>DNDItem</code> converts the children to a draggable item.
-</dl>
+**DNDItem** - It handles all the magic. <code>DNDItem</code> converts the children to a draggable item.
 
 > Test.tsx
 ```js
@@ -70,16 +61,11 @@ export const Test = () => {
 }
 ```
 
-> <span style="color: #ffffff;">*</span> **Note:** DNDItem accepts only HTMLElement as direct children. It may not work properly for React component or React Fragment as direct children.
+> <sup>*</sup>**Note:** DNDItem accepts only HTMLElement as direct children. It may not work properly for React component or React Fragment as direct children.
 
-### Advance features
+## Advance features
 
-<dl>
-  <dt>DNDHandler -</dt>
-</dl>
-<dl>
-  It allows user to add drag handler to DNDItem. Wrap your handler element with this component like so...
-</dl>
+**DNDHandler** - It allows user to add drag handler to DNDItem. Wrap your handler element with this component like so...
 
 > Test.tsx
 ```js
@@ -108,4 +94,38 @@ export const Test = () => {
 }
 
 ```
-![](/public/2024-04-26%2013-05-10.gif)
+![](/public/DNDHandler.gif)
+> <sup>*</sup>**Note:** DNDHandler accepts only HTMLElement as direct children. It may not work properly for React component or React Fragment as direct children.
+
+<br>
+
+**DNDIndicator** - It allows user to add drop indicator to DNDItem. Place DNDIndicator component inside the DNDItem like so...
+```js
+import { DNDHandler, DNDIndicator, DNDItem } from "react-dnd-lite"
+import DragIcon from '../assets/DragIcon.svg'
+
+export const Test = () => {
+  return (
+    <div className="container">
+      <DNDItem id="1">
+        <div className="box box-1">
+          Box 1
+
+          <DNDHandler id="1">
+            <img src={DragIcon} className="drag-icon"/>
+          </DNDHandler>
+        </div>
+      </DNDItem>
+      <DNDItem id="2">
+        <div className="box box-2">
+          Box 2
+
+          <DNDIndicator position="left" id="2" />
+          <DNDIndicator position="right" id="2" />
+        </div>
+      </DNDItem>
+    </div>
+  )
+}
+```
+![](/public/DNDIndicator.gif)
