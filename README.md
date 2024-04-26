@@ -70,7 +70,7 @@ export const Test = () => {
 }
 ```
 
-> <span style="color: red;">*</span> **Note:** DNDItem accepts only HTMLElement as direct children. It may not work properly for React component or React Fragment as direct children.
+> <span style="color: #ffffff;">*</span> **Note:** DNDItem accepts only HTMLElement as direct children. It may not work properly for React component or React Fragment as direct children.
 
 ### Advance features
 
