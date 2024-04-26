@@ -1,11 +1,11 @@
 import { createContext, useState} from "react"
 
-export interface DraggingElementInterface {
+export interface IElementDragging {
   id: string | null
   element: Element | null
 }
 
-export interface DragOverElementInterface {
+export interface IElementDraggingOver {
   id: string | null
   element: Element | null
 }
@@ -24,13 +24,13 @@ interface DNDContextInterface {
   getDraggingStatus: () => boolean,
 
   // Dragging element state
-  getDraggingElementData: () => DraggingElementInterface
-  updateDraggingElement: (data: DraggingElementInterface) => void
+  getDraggingElementData: () => IElementDragging
+  updateDraggingElement: (data: IElementDragging) => void
   clearDraggingElement: ()=> void
 
   // Dragover element state
-  getDragOverElementData: () => DragOverElementInterface
-  updateDragOverElement: (data: DragOverElementInterface) => void
+  getDragOverElementData: () => IElementDraggingOver
+  updateDragOverElement: (data: IElementDraggingOver) => void
   clearDragOverElement: () => void
 
   // On Drop state
@@ -42,16 +42,16 @@ interface DNDContextInterface {
 interface DNDContainerInterface {
   children: React.ReactNode
   onDrop?: (data: IElementDrop) => void
-  onDragStart?: (data: DraggingElementInterface) => void
-  onDragOver?: (data: DragOverElementInterface) => void
+  onDragStart?: (data: IElementDragging) => void
+  onDragOver?: (data: IElementDraggingOver) => void
 }
 
 export const DNDContainerContext = createContext<DNDContextInterface | null>(null)
 
 export const DNDContainer = ({children, onDrop, onDragStart, onDragOver}: DNDContainerInterface) => {
   const [isDragging, setIsDragging] = useState(false)
-  const [draggingElement, setDraggingElement] = useState<DraggingElementInterface>({id: null, element: null})
-  const [dragOverElement, setDragOverElement] = useState<DragOverElementInterface>({id: null, element: null})
+  const [draggingElement, setDraggingElement] = useState<IElementDragging>({id: null, element: null})
+  const [dragOverElement, setDragOverElement] = useState<IElementDraggingOver>({id: null, element: null})
   const [onDropInfo, setOnDropInfo] = useState<IElementDrop | null>(null)
 
   // Dragging status
@@ -68,7 +68,7 @@ export const DNDContainer = ({children, onDrop, onDragStart, onDragOver}: DNDCon
     return draggingElement
   }
 
-  const updateDraggingElement = (data: DraggingElementInterface) => {
+  const updateDraggingElement = (data: IElementDragging) => {
     if (onDragStart) onDragStart(data)
     setDraggingElement({...data})
     return
@@ -84,7 +84,7 @@ export const DNDContainer = ({children, onDrop, onDragStart, onDragOver}: DNDCon
     return dragOverElement
   }
 
-  const updateDragOverElement = (data: DragOverElementInterface) => {
+  const updateDragOverElement = (data: IElementDraggingOver) => {
     if (onDragOver) onDragOver(data)
     setDragOverElement({...data})
     return
