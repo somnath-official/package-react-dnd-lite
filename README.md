@@ -84,16 +84,17 @@ export const Test = () => {
 > Test.tsx
 ```js
 import { DNDHandler, DNDItem } from "react-dnd-lite"
+import DragIcon from '../assets/DragIcon.svg'
 
 export const Test = () => {
   return (
     <div className="container">
       <DNDItem id="1">
         <div className="box box-1">
-          <span>Box 1</span>
-          
+          Box 1
+
           <DNDHandler id="1">
-            <button>Drag me</button>
+            <img src={DragIcon} className="drag-icon"/>
           </DNDHandler>
         </div>
       </DNDItem>
@@ -105,5 +106,6 @@ export const Test = () => {
     </div>
   )
 }
+
 ```
 ![](/public/2024-04-26%2013-05-10.gif)
