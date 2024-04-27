@@ -1,9 +1,15 @@
-import './App.css'
-import { Example } from './Example/Example'
+import './App.scss'
+import { Header } from './components/Header'
+import { Simple } from './pages/simple'
 
 function App() {
   return (
-    <Example />
+    <>
+      <Header />
+      <main>
+        <Simple />
+      </main>
+    </>
   )
 }
 
