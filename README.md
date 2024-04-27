@@ -35,7 +35,7 @@ function App() {
 export default App
 
 ```
-|API|Type|Required|Example|
+|#|Type|Required|Example|
 |---|----|--------|-------|
 |onDrop|function|`false`| (e: IElementDrop) => console.log(e) |
 |onDragStart|function|`false`| (e: IElementDragging) => console.log(e) |
@@ -71,7 +71,7 @@ export const Test = () => {
 
 <br>
 
-|API|Type|Required|Example|
+|#|Type|Required|Example|
 |---|----|--------|-------|
 |id|string|`true`| id="some-id-1"|
 |isDraggable|boolean|`false`|isDraggable={true}|
@@ -113,7 +113,7 @@ export const Test = () => {
 
 <br>
 
-|API|Type|Required|Example|Note|
+|#|Type|Required|Example|Note|
 |---|----|--------|-------|----|
 |id|string|`true`| id="some-id-1"|Please note that id must be same with the DNDItem's id|
 
@@ -152,7 +152,7 @@ export const Test = () => {
 
 <br>
 
-|API|Type|Required|Example|Note|
+|#|Type|Required|Example|Note|
 |---|----|--------|-------|----|
 |id|string|`true`| id="some-id-1"|Please note that id must be same with the DNDItem's id|
 |position|string|`true`| position="left"|Available options are `left`, `right`, `bottom`, `top` and `element`, Default is `element`|
