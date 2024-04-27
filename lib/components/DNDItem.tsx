@@ -1,6 +1,6 @@
 import { cloneElement, useContext, useEffect, useRef, useState } from "react"
 import { DNDContainerContext, IElementDrop } from "./DNDContainer"
-import { DND_HANDLER_ID, DND_ITEM_ID } from "../constants"
+import { DND_HANDLER_ID, DND_INDICATOR_ID, DND_ITEM_ID } from "../constants"
 
 interface DNDItemInterface {
   children: React.ReactElement
@@ -15,26 +15,31 @@ export const DNDItem = ({
 }: DNDItemInterface) => {
   const [itemDraggable, setItemDraggable] = useState(isDraggable)
   const [hasDragHandler, setHasDragHandler] = useState(false)
+  const [hasDropIndicator, setHasDropIndicator] = useState(false)
   const [dragOverlayElement, setDragOverlayElement] = useState<null | HTMLElement>(null)
   const elementRef = useRef<HTMLElement | null>(null)
   const dndContext = useContext(DNDContainerContext)
 
   const onDragStart = (e: React.DragEvent) => {
-    const cloneElement = e.currentTarget.cloneNode(true) as HTMLElement
-    cloneElement.style.position = 'absolute';
-    cloneElement.style.left = '-100%';
-    cloneElement.style.zIndex = '-100';
-
-    document.querySelector('body')?.appendChild(cloneElement)
-    setDragOverlayElement(cloneElement)
-    e.dataTransfer.setDragImage(cloneElement, 0, 0)
-
-    e.currentTarget.classList.add('dragging')
-    
     const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     if (dndId) {
       dndContext?.updateDraggingStatus(true)
-      dndContext?.updateDraggingElement({id: dndId, element: e.currentTarget})
+      dndContext?.updateDraggingElement({ id: dndId, element: e.currentTarget })
+
+      const parentElement = e.currentTarget.parentElement
+      const dragElementDimentionData = e.currentTarget.getBoundingClientRect()
+      const cloneElement = e.currentTarget.cloneNode(true) as HTMLElement
+      
+      cloneElement.style.position = 'absolute';
+      cloneElement.style.left = '-100%';
+      cloneElement.style.width = `${dragElementDimentionData.width}px`
+      cloneElement.style.height = `${dragElementDimentionData.height}px`
+
+      parentElement?.appendChild(cloneElement)
+      setDragOverlayElement(cloneElement)
+      e.dataTransfer.setDragImage(cloneElement, e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+
+      e.currentTarget.classList.add('dragging')
     }
   }
 
@@ -45,8 +50,23 @@ export const DNDItem = ({
   const onDragEnter = (e: React.DragEvent) => {
     const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     const draggingElement = dndContext?.getDraggingElementData()
-    if (dndId && draggingElement?.id !== dndId)
-      dndContext?.updateDragOverElement({id: dndId, element: e.currentTarget})
+
+    if (dndId && draggingElement?.id !== dndId) {
+      if (!hasDropIndicator) {
+        const dragOverElement = e.currentTarget as HTMLElement
+        dragOverElement.style.setProperty('opacity', '0')
+      }
+      dndContext?.updateDragOverElement({ id: dndId, element: e.currentTarget })
+    }
+  }
+
+  const onDragLeave = (e: React.DragEvent) => {
+    const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
+    const draggingElement = dndContext?.getDraggingElementData()
+    if (dndId && draggingElement?.id !== dndId && !hasDropIndicator) {
+      const dragOverElement = e.currentTarget as HTMLElement
+      dragOverElement.style.removeProperty('opacity')
+    }
   }
 
   const onDrop = (e: React.DragEvent) => {
@@ -61,22 +81,29 @@ export const DNDItem = ({
         droppingPosition: 'element'
       }
 
-      dndContext?.updateOnDropInfo(data)     
+      dndContext?.updateOnDropInfo(data)
+
+      const dragOverElement = e.currentTarget as HTMLElement
+      dragOverElement.style.removeProperty('opacity')
     }
   }
 
   const onDragEnd = (e: React.DragEvent) => {
     e.currentTarget.classList.remove('dragging')
+
     if (dragOverlayElement) {
-      document.querySelector('body')?.removeChild(dragOverlayElement)
+      const parentElement = e.currentTarget.parentElement
+      parentElement?.removeChild(dragOverlayElement)
       setDragOverlayElement(null)
     }
+
     dndContext?.updateDraggingStatus(false)
+
     if (hasDragHandler && elementRef.current) {
       setItemDraggable(false)
       elementRef.current.setAttribute("draggable", "false")
     }
-    
+
     dndContext?.clearDraggingElement()
     dndContext?.clearDragOverElement()
     dndContext?.updateDraggingStatus(false)
@@ -92,7 +119,9 @@ export const DNDItem = ({
   }
 
   const getStyles = () => {
-    return children.props.style ? {...children.props.style, position: 'relative'} : { position: 'relative' }
+    return children.props.style
+      ? { ...children.props.style, position: 'relative', cursor: 'move' }
+      : { position: 'relative', cursor: 'move' }
   }
 
   const checkChildren = () => {
@@ -108,7 +137,7 @@ export const DNDItem = ({
       `)
     }
 
-    switch(typeof children.type) {
+    switch (typeof children.type) {
       case 'function':
         throw new Error('You are providing React.Component as children to DNDItem. Please use a regular HTML element such as div, span, or p as children')
       case 'symbol':
@@ -122,8 +151,17 @@ export const DNDItem = ({
   useEffect(() => {
     if (isDraggable) {
       const handler = document.querySelector(`[${DND_HANDLER_ID}="${id}"]`)
+      
+      const leftIndicator = document.querySelector(`[${DND_INDICATOR_ID}-left="${id}"]`)
+      const rightIndicator = document.querySelector(`[${DND_INDICATOR_ID}-right="${id}"]`)
+      const bottomIndicator = document.querySelector(`[${DND_INDICATOR_ID}-bottom="${id}"]`)
+      const topIndicator = document.querySelector(`[${DND_INDICATOR_ID}-top="${id}"]`)
+      const elementIndicator = document.querySelector(`[${DND_INDICATOR_ID}-element="${id}"]`)
+      
+      if (leftIndicator || rightIndicator || bottomIndicator || topIndicator || elementIndicator) setHasDropIndicator(true)
+      else setHasDropIndicator(false)
 
-      if(handler) {
+      if (handler) {
         setItemDraggable(false)
         setHasDragHandler(true)
       } else {
@@ -145,6 +183,7 @@ export const DNDItem = ({
       onDragStart,
       onDragOver,
       onDragEnter,
+      onDragLeave,
       onDrop,
       onDragEnd,
     }
