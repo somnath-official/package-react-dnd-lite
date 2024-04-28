@@ -1,6 +1,6 @@
 import { cloneElement, useContext, useEffect, useRef, useState } from "react"
 import { DNDContainerContext, IElementDrop } from "./DNDContainer"
-import { DND_HANDLER_ID, DND_INDICATOR_ID, DND_ITEM_ID } from "../constants"
+import { DND_HANDLER_ID, DND_ITEM_ID } from "../constants"
 
 interface DNDItemInterface {
   children: React.ReactElement
@@ -15,7 +15,7 @@ export const DNDItem = ({
 }: DNDItemInterface) => {
   const [itemDraggable, setItemDraggable] = useState(isDraggable)
   const [hasDragHandler, setHasDragHandler] = useState(false)
-  const [hasDropIndicator, setHasDropIndicator] = useState(false)
+  // const [hasDropIndicator, setHasDropIndicator] = useState(false)
   const [dragOverlayElement, setDragOverlayElement] = useState<null | HTMLElement>(null)
   const elementRef = useRef<HTMLElement | null>(null)
   const dndContext = useContext(DNDContainerContext)
@@ -43,29 +43,14 @@ export const DNDItem = ({
     }
   }
 
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
+  const onDragOver = (e: React.DragEvent) => e.preventDefault()
 
   const onDragEnter = (e: React.DragEvent) => {
     const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
     const draggingElement = dndContext?.getDraggingElementData()
 
     if (dndId && draggingElement?.id !== dndId) {
-      if (!hasDropIndicator) {
-        const dragOverElement = e.currentTarget as HTMLElement
-        dragOverElement.style.setProperty('opacity', '0')
-      }
       dndContext?.updateDragOverElement({ id: dndId, element: e.currentTarget })
-    }
-  }
-
-  const onDragLeave = (e: React.DragEvent) => {
-    const dndId = e.currentTarget.getAttribute(DND_ITEM_ID)
-    const draggingElement = dndContext?.getDraggingElementData()
-    if (dndId && draggingElement?.id !== dndId && !hasDropIndicator) {
-      const dragOverElement = e.currentTarget as HTMLElement
-      dragOverElement.style.removeProperty('opacity')
     }
   }
 
@@ -152,14 +137,14 @@ export const DNDItem = ({
     if (isDraggable) {
       const handler = document.querySelector(`[${DND_HANDLER_ID}="${id}"]`)
       
-      const leftIndicator = document.querySelector(`[${DND_INDICATOR_ID}-left="${id}"]`)
-      const rightIndicator = document.querySelector(`[${DND_INDICATOR_ID}-right="${id}"]`)
-      const bottomIndicator = document.querySelector(`[${DND_INDICATOR_ID}-bottom="${id}"]`)
-      const topIndicator = document.querySelector(`[${DND_INDICATOR_ID}-top="${id}"]`)
-      const elementIndicator = document.querySelector(`[${DND_INDICATOR_ID}-element="${id}"]`)
+      // const leftIndicator = document.querySelector(`[${DND_INDICATOR_ID}-left="${id}"]`)
+      // const rightIndicator = document.querySelector(`[${DND_INDICATOR_ID}-right="${id}"]`)
+      // const bottomIndicator = document.querySelector(`[${DND_INDICATOR_ID}-bottom="${id}"]`)
+      // const topIndicator = document.querySelector(`[${DND_INDICATOR_ID}-top="${id}"]`)
+      // const elementIndicator = document.querySelector(`[${DND_INDICATOR_ID}-element="${id}"]`)
       
-      if (leftIndicator || rightIndicator || bottomIndicator || topIndicator || elementIndicator) setHasDropIndicator(true)
-      else setHasDropIndicator(false)
+      // if (leftIndicator || rightIndicator || bottomIndicator || topIndicator || elementIndicator) setHasDropIndicator(true)
+      // else setHasDropIndicator(false)
 
       if (handler) {
         setItemDraggable(false)
@@ -183,7 +168,6 @@ export const DNDItem = ({
       onDragStart,
       onDragOver,
       onDragEnter,
-      onDragLeave,
       onDrop,
       onDragEnd,
     }
